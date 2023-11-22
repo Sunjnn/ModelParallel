@@ -237,6 +237,16 @@ class ParallelModel:
 
             done = False
 
+            for _ in range(len(self.blocks)):
+                for i in range(len(self.blocks), 0, -1):
+                    i = i - 1
+                    block = self.blocks[i]
+                    if block.readyForward():
+                        output, idx = block.forward()
+                        if i < len(self.blocks) - 1:
+                            self.blocks[i + 1].appendForward(idx)
+                            self.blocks[i + 1].setInput(idx, output.clone().detach())
+
             while not done:
                 for i in range(len(self.blocks)):
                     if self.blocks[i].readyBackward():
