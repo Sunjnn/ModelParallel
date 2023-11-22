@@ -260,6 +260,6 @@ class ParallelModel:
             for block in self.blocks:
                 for para in block.parameters():
                     distributed.all_reduce(para, group=self.group)
-                    para = para / len(distributed.get_world_size(self.group))
+                    para = para / distributed.get_world_size(self.group)
 
             self.optimizer.step()
