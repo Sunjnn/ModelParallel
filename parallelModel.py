@@ -199,6 +199,7 @@ class ParallelModel:
         """
 
         # Each device holds a block.
+        assert(sum(number_of_layers_each_block) == len(model))
         self.blocks : list[PipelineBlock] = []
         self.loss_fn = loss_fn
         len_blocks = len(number_of_layers_each_block)
