@@ -220,6 +220,7 @@ class ParallelModel:
         for x, y in train_loader:
             len_minibatch = int((x.shape[0] + number_minibatches - 1)
                                 / number_minibatches)
+            self.optimizer.zero_grad()
 
             # reset status of each block
             for i in range(len(self.blocks)):
