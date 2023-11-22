@@ -13,7 +13,7 @@ class PipelineBlock:
     previous block after backward.
     """
 
-    def __init__(self, layers : nn.Sequential, GPU_id : int, optim, lr) -> None:
+    def __init__(self, layers : nn.Sequential, GPU_id : int) -> None:
         self.layers = layers.to(GPU_id)
         self.GPU_id = GPU_id
 
@@ -49,8 +49,6 @@ class PipelineBlock:
         self.forward_done = -1
         self.backward_done = -1
 
-        # self.optim = optim(layers.parameters(), lr=lr)
-
     def resetIdxs(self):
         """reset variables before execution of a micro batch."""
         self.inputs.clear()
@@ -60,7 +58,6 @@ class PipelineBlock:
         self.backward_queue.clear()
         self.forward_done = -1
         self.backward_done = -1
-        self.optim.zero_grad()
 
     def setInput(self, idx, x):
         self.inputs[idx] =  x
@@ -130,9 +127,6 @@ class PipelineBlock:
     def getGPUid(self):
         return self.GPU_id
 
-    def step(self):
-        self.optim.step()
-
     def parameters(self):
         return self.layers.parameters()
 
@@ -143,8 +137,8 @@ class PipelineBlockLast(PipelineBlock):
     This revise `PipelineBlock`. `outputs` holds loss and `grads` holds label.
     """
 
-    def __init__(self, layers : nn.Sequential, GPU_id : int, loss_fn, optim, lr) -> None:
-        super().__init__(layers, GPU_id, optim, lr)
+    def __init__(self, layers : nn.Sequential, GPU_id : int, loss_fn) -> None:
+        super().__init__(layers, GPU_id)
         self.loss_fn = loss_fn
 
     def forward(self):
@@ -197,7 +191,7 @@ class ParallelModel:
     This class warp a model to train it using pipeline and data parallel.
     """
 
-    def __init__(self, model : nn.Module, number_of_layers_each_blockL : list, loss_fn, optim, GPU_ids : list, group) -> None:
+    def __init__(self, model : nn.Module, number_of_layers_each_blockL : list, loss_fn, optim, GPU_ids : list, group, lr=1e-3) -> None:
         """Initialize.
 
         `optim` should be the class type and it will be initialized in block.
@@ -215,11 +209,11 @@ class ParallelModel:
                 module = next(module_iter)
                 block.append(module)
             if i < len_blocks - 1:
-                self.blocks.append(PipelineBlock(block, GPU_ids[i], optim))
+                self.blocks.append(PipelineBlock(block, GPU_ids[i]))
             else:
-                self.blocks.append(PipelineBlockLast(block, GPU_ids[i]), loss_fn, optim)
+                self.blocks.append(PipelineBlockLast(block, GPU_ids[i], loss_fn))
 
-        self.optimizer = optim([block.parameters() for block in self.blocks])
+        self.optimizer = optim([{"params": block.parameters()} for block in self.blocks], lr=lr)
         self.group = group
 
     def train(self, train_loader, number_minibatches):
@@ -268,5 +262,4 @@ class ParallelModel:
                     distributed.all_reduce(para, group=self.group)
                     para = para / len(distributed.get_world_size(self.group))
 
-            for block in self.blocks:
-                block.step()
+            self.optimizer.step()
