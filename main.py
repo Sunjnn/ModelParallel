@@ -25,7 +25,9 @@ def addArguments():
 
     args = parser.parse_args()
     args.GPU_ids = list(args.GPU_ids.split(','))
+    args.GPU_ids = [int(x) for x in args.GPU_ids]
     args.num_layers = list(args.num_layers.split(','))
+    args.num_layers = [int(x) for x in args.num_layers]
 
     return args
 
