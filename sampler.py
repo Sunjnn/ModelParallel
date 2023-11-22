@@ -29,4 +29,4 @@ class DistributedSampler(Sampler):
 
     def __iter__(self):
         for i in range(self.rank, len(self.data_source), self.global_size):
-            yield self.data_source[i]
+            yield i
