@@ -218,7 +218,8 @@ class ParallelModel:
 
     def train(self, train_loader, number_minibatches):
         for x, y in train_loader:
-            len_minibatch = x.shape[0] / number_minibatches
+            len_minibatch = int((x.shape[0] + number_minibatches - 1)
+                                / number_minibatches)
 
             # reset status of each block
             for i in range(len(self.blocks)):
