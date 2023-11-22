@@ -41,8 +41,8 @@ class PipelineBlock:
         # `forward` and `backward` queue contains index of mini batch that
         # needed to be executed later. They are set by method `appendForward`
         # and `appendBackward`.
-        self.forward_queue : deque = []
-        self.backward_queue : deque = []
+        self.forward_queue : deque = deque()
+        self.backward_queue : deque = deque()
 
         # `forward_done` and `backward_done` means index of last mini batch that
         # have been execute.
