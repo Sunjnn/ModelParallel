@@ -84,7 +84,7 @@ class PipelineBlock:
         idx = self.forward_queue.popleft()
 
         # Transfer input to this device and set states.
-        self.inputs[idx].to(self.getGPUid())
+        self.inputs[idx] = self.inputs[idx].to(self.getGPUid())
         self.inputs[idx].requires_grad_()
         self.inputs[idx].retain_grad()
 
@@ -105,7 +105,7 @@ class PipelineBlock:
         idx = self.backward_queue.popleft()
 
         # Transfer grad to this device.
-        self.grads[idx].to(self.getGPUid())
+        self.grads[idx] = self.grads[idx].to(self.getGPUid())
 
         # Execute backward.
         self.outputs[idx].backward(gradient=self.grads[idx], retain_graph=True)
@@ -148,7 +148,7 @@ class PipelineBlockLast(PipelineBlock):
         idx = self.forward_queue.popleft()
 
         # Transfer input to this device and set states.
-        self.inputs[idx].to(self.getGPUid())
+        self.inputs[idx] = self.inputs[idx].to(self.getGPUid())
         self.inputs[idx].requires_grad_()
         self.inputs[idx].retain_grad()
 
