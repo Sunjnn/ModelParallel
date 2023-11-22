@@ -44,7 +44,7 @@ def main():
     train_sets = getDataset()
     sampler = DistributedSampler(train_sets, args.GPU_ids[0])
     train_loader = DataLoader(train_sets, batch_size=args.batch_size, sampler=sampler)
-    parallel_model = ParallelModel(model, [1, 1, 1, 1], nn.CrossEntropyLoss(), optim.SGD, args.GPU_ids, None)
+    parallel_model = ParallelModel(model, args.num_layers, nn.CrossEntropyLoss(), optim.SGD, args.GPU_ids, None)
 
     epoch = 100
     for i in range(epoch):
