@@ -120,9 +120,10 @@ class PipelineBlock:
     def setBackwardDone(self, idx):
         self.backward_done = idx
 
-    def done(self, number_minibatches):
+    def done(self):
         """Return if all task of a micro batch are done."""
-        return self.forward_done + 1 == number_minibatches and self.backward_done + 1 == number_minibatches
+        return len(self.forward_queue) == 0 \
+               and len(self.backward_queue) == 0
 
     def getGPUid(self):
         return self.GPU_id
