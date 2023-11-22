@@ -192,7 +192,7 @@ class ParallelModel:
     This class warp a model to train it using pipeline and data parallel.
     """
 
-    def __init__(self, model : nn.Module, number_of_layers_each_blockL : list, loss_fn, optim, GPU_ids : list, group, lr=1e-3) -> None:
+    def __init__(self, model : nn.Module, number_of_layers_each_block : list, loss_fn, optim, GPU_ids : list, group, lr=1e-3) -> None:
         """Initialize.
 
         `optim` should be the class type and it will be initialized in block.
@@ -201,12 +201,12 @@ class ParallelModel:
         # Each device holds a block.
         self.blocks : list[PipelineBlock] = []
         self.loss_fn = loss_fn
-        len_blocks = len(number_of_layers_each_blockL)
+        len_blocks = len(number_of_layers_each_block)
 
         module_iter = model.children()
         for i in range(len_blocks):
             block = nn.Sequential()
-            for _ in range(number_of_layers_each_blockL[i]):
+            for _ in range(number_of_layers_each_block[i]):
                 module = next(module_iter)
                 block.append(module)
             if i < len_blocks - 1:
