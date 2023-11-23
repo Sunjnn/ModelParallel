@@ -259,7 +259,7 @@ class ParallelModel:
                         if i > 0:
                             self.blocks[i - 1].appendBackward(idx)
                             self.blocks[i - 1].setGrad(idx, grad)
-                    else:
+                    elif self.blocks[i].readyForward():
                         # forward
                         output, idx = self.blocks[i].forward()
                         if i < len(self.blocks) - 1:
