@@ -254,13 +254,13 @@ class ParallelModel:
             while not done:
                 for i in range(len(self.blocks)):
                     if self.blocks[i].readyBackward():
-                        # forward
+                        # backward
                         grad, idx = self.blocks[i].backward()
                         if i > 0:
                             self.blocks[i - 1].appendBackward(idx)
                             self.blocks[i - 1].setGrad(idx, grad)
                     else:
-                        # backward``
+                        # forward
                         output, idx = self.blocks[i].forward()
                         if i < len(self.blocks) - 1:
                             self.blocks[i + 1].appendForward(idx)
